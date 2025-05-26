@@ -60,8 +60,6 @@ async function listar() {
           <p>${escapeHtml(f.sinopse)}</p>
           ${f.poster ? `<img src="${escapeHtml(f.poster)}" alt="Poster do filme ${escapeHtml(f.titulo)}" />` : ''}
           <br>
-          <button onclick="excluir('${escapeHtml(f.titulo)}')">Excluir</button>
-          <button onclick="editar('${escapeHtml(f.titulo)}')">Editar</button>
         </div>
       `;
     });
