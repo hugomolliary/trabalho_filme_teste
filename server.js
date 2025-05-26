@@ -38,12 +38,13 @@ app.post('/api/add', async (req, res) => {
   const info = await detalhes.json();
 
   const novoFilme = {
-    titulo: filme.title,
-    data: filme.release_date,
-    sinopse: filme.overview,
-    minutagem: info.runtime || 'Desconhecida',
-    poster: filme.poster_path ? `https://image.tmdb.org/t/p/w200${filme.poster_path}` : ''
-  };
+    titulo: filme.title,
+    data: filme.release_date,
+    sinopse: filme.overview,
+    minutagem: info.runtime || 'Desconhecida',
+    poster: filme.poster_path ? `https://image.tmdb.org/t/p/w200${filme.poster_path}` : '', // <--- Adicione a vírgula aqui
+    generos: info.genres ? info.genres.map(g => g.name).join(', ') : 'Desconhecido'
+  };
 
   filmes.push(novoFilme);
   fs.writeFileSync(DB_PATH, JSON.stringify(filmes, null, 2));

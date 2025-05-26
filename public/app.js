@@ -56,6 +56,7 @@ async function listar() {
           <h3>${escapeHtml(f.titulo)}</h3>
           <p><strong>Data:</strong> ${escapeHtml(f.data)}</p>
           <p><strong>Duração:</strong> ${escapeHtml(f.minutagem?.toString())} min</p>
+          <p><strong>Gênero:</strong> ${escapeHtml(f.generos)}</p>
           <p>${escapeHtml(f.sinopse)}</p>
           ${f.poster ? `<img src="${escapeHtml(f.poster)}" alt="Poster do filme ${escapeHtml(f.titulo)}" />` : ''}
           <br>
