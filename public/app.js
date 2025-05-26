@@ -19,7 +19,7 @@ async function adicionar() {
     }
 
     alert(await res.text());
-    listar();
+    listar(); // Refresh the list after adding
   } catch (error) {
     console.error('Erro em adicionar():', error);
     alert('Erro ao adicionar filme: ' + error.message);
@@ -40,11 +40,11 @@ async function listar() {
     if (!res.ok) {
       throw new Error(`Erro ao listar filmes: ${await res.text()}`);
     }
-    
+
     const filmes = await res.json();
     const resultado = document.getElementById('resultado');
-    resultado.innerHTML = '';
-    
+    resultado.innerHTML = ''; // Clear previous content
+
     if (!Array.isArray(filmes) || filmes.length === 0) {
       resultado.innerHTML = '<p>Nenhum filme encontrado.</p>';
       return;
@@ -60,8 +60,8 @@ async function listar() {
           <p>${escapeHtml(f.sinopse)}</p>
           ${f.poster ? `<img src="${escapeHtml(f.poster)}" alt="Poster do filme ${escapeHtml(f.titulo)}" />` : ''}
           <br>
-          <button onclick="excluir('${escapeHtml(f.titulo)}')">Excluir</button>
           <button onclick="editar('${escapeHtml(f.titulo)}')">Editar</button>
+          <button onclick="excluir('${escapeHtml(f.titulo)}')">Excluir</button>
         </div>
       `;
     });
@@ -74,7 +74,7 @@ async function listar() {
 async function excluir(titulo) {
   try {
     if (!confirm(`Deseja excluir o filme "${titulo}"?`)) return;
-    
+
     const res = await fetch(`/api/excluir/${encodeURIComponent(titulo)}`, {
       method: 'DELETE'
     });
@@ -83,8 +83,8 @@ async function excluir(titulo) {
       throw new Error(`Erro ao excluir filme: ${await res.text()}`);
     }
 
-    alert(await res.text());
-    listar();
+      alert(await res.text());
+    listar(); // Refresh the list after deletion
   } catch (error) {
     console.error('Erro em excluir():', error);
     alert('Erro ao excluir filme: ' + error.message);
@@ -93,17 +93,29 @@ async function excluir(titulo) {
 
 async function excluirTodos() {
   try {
+    // First, check if there are any movies to delete
+    const resListar = await fetch('/api/listar');
+    if (!resListar.ok) {
+      throw new Error(`Erro ao verificar filmes para exclusão: ${await resListar.text()}`);
+    }
+    const filmes = await resListar.json();
+
+    if (!Array.isArray(filmes) || filmes.length === 0) {
+      alert('Não há filmes para excluir.');
+      return;
+    }
+
     if (!confirm('Tem certeza que deseja excluir TODOS os filmes?')) return;
 
-    const res = await fetch('/api/excluir-todos', {
+    const resExcluir = await fetch('/api/excluir-todos', {
       method: 'DELETE'
     });
 
-    if (!res.ok) {
-      throw new Error(`Erro ao excluir todos: ${await res.text()}`);
+    if (!resExcluir.ok) {
+      throw new Error(`Erro ao excluir todos: ${await resExcluir.text()}`);
     }
 
-    alert(await res.text());
+    alert(await resExcluir.text());
     listar();
   } catch (error) {
     console.error('Erro em excluirTodos():', error);
@@ -113,8 +125,31 @@ async function excluirTodos() {
 
 async function editar(titulo) {
   try {
+    const resListar = await fetch('/api/listar');
+    if (!resListar.ok) {
+      throw new Error(`Erro ao verificar filmes para edição: ${await resListar.text()}`);
+    }
+    const filmes = await resListar.json();
+
+    if (!Array.isArray(filmes) || filmes.length === 0) {
+      alert('Não há filmes para editar.');
+      return;
+    }
+
+    const filmeExiste = filmes.some(f => f.titulo === titulo);
+    if (!filmeExiste) {
+        alert(`O filme "${titulo}" não foi encontrado para edição.`);
+        return;
+    }
+
     const novaSinopse = prompt(`Nova sinopse para "${titulo}":`);
-    if (!novaSinopse) return;
+    if (novaSinopse === null) {
+        return;
+    }
+    if (!novaSinopse.trim()) {
+        alert('A sinopse não pode ser vazia.');
+        return;
+    }
 
     const res = await fetch(`/api/editar/${encodeURIComponent(titulo)}`, {
       method: 'PUT',
