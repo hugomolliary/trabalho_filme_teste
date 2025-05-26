@@ -95,20 +95,6 @@ app.get('/api/listar', (req, res) => {
   res.json(filmes);
 });
 
-// Route to delete a single movie by title
-app.delete('/api/excluir/:titulo', (req, res) => {
-  const tituloParaExcluir = decodeURIComponent(req.params.titulo);
-  const initialLength = filmes.length;
-  // Filter out the movie to be deleted
-  filmes = filmes.filter(f => f.titulo !== tituloParaExcluir);
-
-  if (filmes.length < initialLength) {
-    saveFilmes(); // Save if a movie was actually removed
-    res.send(`Filme "${tituloParaExcluir}" excluído com sucesso.`);
-  } else {
-    res.status(404).send(`Filme "${tituloParaExcluir}" não encontrado.`);
-  }
-});
 
 // Route to delete all movies
 app.delete('/api/excluir-todos', (req, res) => {
@@ -119,28 +105,6 @@ app.delete('/api/excluir-todos', (req, res) => {
   saveFilmes(); // Save the empty array to db.json
   res.send('Todos os filmes foram excluídos.');
 });
-
-// Route to edit a movie's sinopse by title
-app.put('/api/editar/:titulo', (req, res) => {
-  const tituloParaEditar = decodeURIComponent(req.params.titulo);
-  const novaSinopse = req.body.sinopse;
-
-  if (typeof novaSinopse === 'undefined' || novaSinopse === null || novaSinopse.trim() === '') {
-    return res.status(400).send('Nova sinopse é obrigatória e não pode ser vazia.');
-  }
-
-  // Find the movie by title
-  const filmeIndex = filmes.findIndex(f => f.titulo === tituloParaEditar);
-
-  if (filmeIndex !== -1) {
-    filmes[filmeIndex].sinopse = novaSinopse; // Update the sinopse
-    saveFilmes(); // Save the updated array to db.json
-    res.send(`Sinopse do filme "${tituloParaEditar}" atualizada com sucesso.`);
-  } else {
-    res.status(404).send(`Filme "${tituloParaEditar}" não encontrado para edição.`);
-  }
-});
-
 
 // Start the server
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
